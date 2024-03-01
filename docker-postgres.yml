@@ -1,0 +1,17 @@
+version: "3.8"
+networks:
+  quarkus:
+    name: quarkus-network
+    driver: bridge
+services:
+  api-postgres:
+    image: library/postgres:16
+    container_name: api-postgres
+    environment:
+      - POSTGRES_PASSWORD=dev123
+      - POSTGRES_USER=dev
+      - POSTGRES_DB=quarkus
+    ports:
+      - "6543:5432"
+    networks:
+      - quarkus
