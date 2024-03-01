@@ -1,20 +1,60 @@
-# quarkus
+# Quarkus and GraalVM workshop
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## An introductory Workshop on Quarkus and GraalVM
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+In this workshop we will show how to effectively leverage the supersonic and subatomic framework Quarkus to make fast and reliable java applications.
+
+See the diagram below for the architecture of the app we will be building.
+
+![alt text](https://github.com/IT-Labs/Quarkus/blob/main/img/overview_app_jvm.png)
+![alt text](https://github.com/IT-Labs/Quarkus/blob/main/img/overview_app_binary.png)
+
+## Prerequisites
+
+- **Docker** ->  https://www.docker.com/
+- **GraalVM** -> https://www.graalvm.org/downloads/
+- **Java**: -> https://www.oracle.com/java/technologies/downloads/
+- **Favourite IDE**
+
+# Step 1 - Bootstrap our application
+We have multiple ways of bootstrapping our application, using Intellij, Maven/Gradle or using quarkus initializer
+
+1.	Navigate to https://code.quarkus.io/.
+2.	Choose Group name and artifact name.
+3.	Choose Build Tool (in this project Maven will be used).
+4.	Choose Java version (in this project Java 17 will be used).
+5.	Select the following dependencies.
+      -  RESTEasy Classic Jackson
+      -  Agroal - Database connection pool
+      -  JDBC Driver - PostgreSQL
+      -  RESTEasy Classic
+      -  Hibernate ORM with Panache
+6.	Under Generate your application - choose download as a zip.
+
+
+# Step 2 - Develop our application
+
+1.	Unzip the app and import it in the IDE.
+2.	We will be using postgres as part of docker - create a docker file for postgres container(refer to docker-postgres.yml file)
+      Starting the container is done with the following command `docker-compose -f "docker-postgres.yml" up -d`
+3. Write a seed script to seed some data when the app is started (refer to seed.sql file)
+4. Configure your app to connect to the database (refer to application.properties file which is located under resources package)
+5. Create our Movie entity with all the information we need (refer to Movie.java file which is located under entity package)
+6. Create the Movie repository (refer to MovieRepository.java file which is located under repository package)
+7. Create the Movie resource (refer to MovieResource.java file which is located under web package)
+
+# Step 3 - Tests
+1.	For tests refer to GreetingResourceTest.java file and MovieResourceTest.java files located under test package
+
+# Important commands for packaging, building and starting the app
+Adding Docker Container extension for building linux executables  
+`./mvnw quarkus:add-extension -Dextensions="container-image-docker"`
 
 ## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-```shell script
-./mvnw compile quarkus:dev
-```
-
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+You can run your application in dev mode that enables live coding using: `./mvnw compile quarkus:dev`
+Or you can run it in your IDE
 
 ## Packaging and running the application
-
 The application can be packaged using:
 ```shell script
 ./mvnw package
@@ -28,45 +68,26 @@ If you want to build an _über-jar_, execute the following command:
 ```shell script
 ./mvnw package -Dquarkus.package.type=uber-jar
 ```
-
 The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
 
 ## Creating a native executable
 
-You can create a native executable using: 
+You can create a native executable using:
 ```shell script
-./mvnw package -Dnative
+./mvnw package -Dquarkus-profile=stage -Pnative
 ```
+This will create native executable with profile stage (depending on your operating system) and this executable will be located under target as `target/*-runner`
+You don't need anything besides your operating system to run it (for windows this is an exe file)
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+## Packaging and running app under Docker
+Build it as jvm image
+`./mvnw package "-Dquarkus.container-image.build=true" "-Dquarkus.container-image.tag=jvm-panache-hibernate"`
 
-You can then execute your native executable with: `./target/quarkus-1.0.0-SNAPSHOT-runner`
+Starting it (change the m.t with your docker repository)
+`docker run -i --rm -p 8080:8080 --network=quarkus-network m.t/quarkus-app:jvm-panache-hibernate`
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
+Build it as native image
+`./mvnw package "-Dquarkus.container-image.build=true" "-Dquarkus.package.type=native" "-Dquarkus.native.container-build=true" "-Dquarkus.container-image.tag=native-with-panache"`
 
-## Related Guides
-
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
-- Agroal - Database connection pool ([guide](https://quarkus.io/guides/datasource)): Pool JDBC database connections (included in Hibernate ORM)
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
-
-## Provided Code
-
-### Hibernate ORM
-
-Create your first JPA entity
-
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
-
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
-
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+Starting it (change the m.t with your docker repository)
+`docker run -i --rm -p 8080:8080 --network=quarkus-network m.t/quarkus-app:native-panache-hibernate`
