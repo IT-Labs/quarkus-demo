@@ -22,7 +22,7 @@ We have multiple ways of bootstrapping our application, using Intellij, Maven/Gr
 1.	Navigate to https://code.quarkus.io/.
 2.	Choose Group name and artifact name.
 3.	Choose Build Tool (in this project Maven will be used).
-4.	Choose Java version (in this project Java 17 will be used).
+4.	Choose Java version (in this project Java 21 will be used).
 5.	Select the following dependencies.
       -  RESTEasy Classic Jackson
       -  Agroal - Database connection pool
